@@ -1,0 +1,1 @@
+.\run.ps1 com.project.Main

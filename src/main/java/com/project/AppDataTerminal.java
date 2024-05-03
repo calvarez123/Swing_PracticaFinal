@@ -7,9 +7,9 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 
-public class AppDataTerminal {
+class AppDataTerminal {
     private static volatile AppDataTerminal instance;
-    private static Object lock = new Object();
+    private static final Object lock = new Object();
 
     private AppDataTerminal() {}
 
@@ -28,21 +28,11 @@ public class AppDataTerminal {
         return executeCommand("netsh advfirewall firewall show rule name=all");
     }
 
-    public String createRule(String ruleName, String ruleCommand) {
-        return executeCommand("netsh advfirewall firewall add rule name=\"" + ruleName + "\" " + ruleCommand);
-    }
-
-    public String deleteRule(String ruleName) {
-        return executeCommand("netsh advfirewall firewall delete rule name=\"" + ruleName + "\"");
-    }
-
     private String executeCommand(String command) {
         StringBuilder output = new StringBuilder();
         try {
             Process process = Runtime.getRuntime().exec(command);
-            CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
-            decoder.onMalformedInput(CodingErrorAction.IGNORE);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), decoder));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
                 output.append(line).append("\n");
