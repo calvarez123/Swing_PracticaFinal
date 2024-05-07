@@ -28,7 +28,7 @@ class AppDataTerminal {
         return executeCommand("netsh advfirewall firewall show rule name=all");
     }
 
-    private String executeCommand(String command) {
+    String executeCommand(String command) {
         StringBuilder output = new StringBuilder();
         try {
             Process process = Runtime.getRuntime().exec(command);
