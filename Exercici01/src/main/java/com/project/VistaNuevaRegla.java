@@ -3,6 +3,9 @@ package com.project;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import org.json.simple.JSONObject;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class VistaNuevaRegla extends JDialog {
     private JTextField nombreField;
@@ -15,6 +18,7 @@ public class VistaNuevaRegla extends JDialog {
     private JRadioButton udpRadioButton;
     private JButton botonGuardar;
     private boolean reglaAgregada;
+    private static final String NOMBRE_ARCHIVO = "data/nameReglas.json";
 
     public VistaNuevaRegla(JFrame parent) {
         super(parent, "Nueva Regla", true);
@@ -82,9 +86,20 @@ public class VistaNuevaRegla extends JDialog {
         setLocationRelativeTo(parent);
     }
 
+    private void guardarNombreRegla(String nombre) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("nombre", nombre);
+
+        try (FileWriter file = new FileWriter(NOMBRE_ARCHIVO)) {
+            file.write(jsonObject.toJSONString());
+            file.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void guardarRegla() {
         AppDataTerminal terminal = AppDataTerminal.getInstance();
-
         String nombre = nombreField.getText();
         String puerto = puertoField.getText();
         String direccionTrafico = entradaRadioButton.isSelected() ? "in" : "out";
@@ -92,12 +107,14 @@ public class VistaNuevaRegla extends JDialog {
         String protocolo = tcpRadioButton.isSelected() ? "TCP" : "UDP";
 
         String comando = "netsh advfirewall firewall add rule name=" + nombre +
-                         " dir=" + direccionTrafico +
-                         " action=" + accion +
-                         " protocol=" + protocolo +
-                         " localport=" + puerto;
+                " dir=" + direccionTrafico +
+                " action=" + accion +
+                " protocol=" + protocolo +
+                " localport=" + puerto;
 
         terminal.executeCommand(comando);
+
+        guardarNombreRegla(nombre);
 
         reglaAgregada = true;
         botonGuardar.setEnabled(false);
